@@ -1,0 +1,97 @@
+# Assignment 8, CS3250
+
+TODO: Update this README and fill out the reflection questions.
+
+This repository contains a (template) implementation of CatML, an ML variant used at UVM for CS3250.
+
+## Building this repository with `dune`
+
+This repository can be built with [`dune`](https://github.com/ocaml/dune), a build system for OCaml projects. It helps manage linking when your project is made up of multiple `.ml` files.
+
+### Install `dune`
+
+Check if dune is already installed via the following terminal command:
+
+```
+$ dune --version
+```
+
+If the command is not found, you can install it via `opam` [(detailed instructions)](https://dune.readthedocs.io/en/latest/howto/install-dune.html).
+
+```
+$ opam install dune
+$ eval $(opam config env)
+$ dune --version
+```
+
+### Build the project
+
+With `dune` installed, you can build the project by running `dune build` from the command line.
+
+```
+$ dune build
+```
+
+You can also access the project modules by running `dune utop`, which will build the project and then open the `utop` toplevel. Different files (such as `src/lang.ml`) correspond to OCaml modules, and data structures (such as the `Var` constructor in the CatML AST) can be accessed via `CatML.Lang.Bool`, where `CatML` is the overall name of the project.
+
+### Structure of the repository
+
+```
+- <root>
+  - dune-project
+  - src
+    - dune
+    - lang.ml
+    - lexer.mll
+    - parser.mly
+    - main.ml
+```
+
+The `dune-project` plaintext file at the top level tells dune how to build your project. The file `src/dune` tells dune the name of the library (`CatML`) and the fact that we have a ocamllex file `lexer.mll` and a menhir parser specification file `parser.mly` in the `src` subdirectory.
+
+```
+(library (name CatML))
+(menhir (modules parser))
+(ocamllex lexer)
+```
+
+The files in the `src` directory include:
+
+- `lang.ml`: The main definition of the CatML language, including syntax, evaluation, and type checking
+- `lexer.mll`: The specification of the lexer used by ocamllex
+- `parser.mly`: The specification of the parser used by menhir
+- `main.ml`: Demonstration of how to access the lexer and parser generated from the above files
+
+
+## Other Resources
+
+1. Parsing and lexing generators in OCaml, [OCaml Programming, Correct + Efficient + Beautiful](https://cs3110.github.io/textbook/chapters/interp/parsing.html)
+2. Parsing with OCamllex and Menhir, [Real World OCaml](https://dev.realworldocaml.org/parsing-with-ocamllex-and-menhir.html)
+3. [Dune build system reference](https://github.com/ocaml/dune)
+
+## How to interact with a CatML program
+
+TODO
+
+
+# Reflection Questions
+
+1. If you worked with a team, list all the members of the team and briefly state what contributions each person made.
+
+TODO
+
+2. Did you use generative AI to assist you in implementing this project? If so, briefly explain how you used it and for which components.
+
+TODO
+
+3. Did you make any design decisions that we should know about?
+
+TODO
+
+4. Did you implement any of the extra credit features? Briefly summarize your work.
+
+TODO
+
+5. Any feedback on the structure of this assignment?
+
+TODO
