@@ -1,0 +1,5 @@
+Let fact = Fix f. x ->
+    If x = 0 Then 1
+    Else x * f (x + -1)
+
+In fact 5

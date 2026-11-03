@@ -45,6 +45,9 @@ You can also access the project modules by running `dune utop`, which will build
     - lexer.mll
     - parser.mly
     - main.ml
+  - examples
+    - example.catml
+    - factorial.catml
 ```
 
 The `dune-project` plaintext file at the top level tells dune how to build your project. The file `src/dune` tells dune the name of the library (`CatML`) and the fact that we have a ocamllex file `lexer.mll` and a menhir parser specification file `parser.mly` in the `src` subdirectory.
@@ -62,6 +65,7 @@ The files in the `src` directory include:
 - `parser.mly`: The specification of the parser used by menhir
 - `main.ml`: Demonstration of how to access the lexer and parser generated from the above files
 
+In the `examples` directory I have included two sample CatML programs. You should write your own additional CatML programs to test your work.
 
 ## Other Resources
 
@@ -76,7 +80,7 @@ TODO
 
 # Reflection Questions
 
-1. If you worked with a team, list all the members of the team and briefly state what contributions each person made.
+1. If you worked as a group, list all the group members.
 
 TODO
 
