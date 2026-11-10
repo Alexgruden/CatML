@@ -82,7 +82,7 @@ TODO
 
 1. If you worked as a group, list all the group members.
 
-TODO
+* Tre O'Connell and Alexander Gruden
 
 2. Did you use generative AI to assist you in implementing this project? If so, briefly explain how you used it and for which components.
 
