@@ -12,8 +12,16 @@ type expr =
      | If of expr * expr * expr
      (* Variables and let expressions *)
      | Var of var | Let of var * expr * expr
+     (* Pairs *)
+     | Pair of expr * expr | First of expr | Second of expr
+     (* Functions *)
+     | Fun of var * expr 
+     (* Fix func*)
+     | Fix of var * expr 
+     (* Function application *)
+     | App of expr * expr
 
-     (* TODO: Add pairs; functions; and recursive functions *)
+     (* DONE: Add pairs; functions; and recursive functions *)
 
 
 (*
