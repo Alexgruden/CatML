@@ -62,7 +62,7 @@ let rec subst (x, v, e) : expr =
   | App(e1,e2) -> App(subst(x,v,e1), subst(x,v,e2))
 
 
-  
+
 type step_result = Step of expr | NotReducible
 (* 
    step : expr -> step_result
@@ -142,6 +142,42 @@ let rec step (e : expr) : step_result =
       | Step e1' -> Step (Let(x,e1',e2))
       | NotReducible -> if is_val e1 then Step(subst(x,e1,e2)) else NotReducible
       end
+   | Pair(e1,e2) -> begin match step e1 with
+      | Step e1' -> Step (Pair(e1',e2))
+      | NotReducible ->
+         begin match step e2 with
+         | Step e2' -> Step (Pair(e1,e2'))
+         | NotReducible -> NotReducible
+         end
+      end
+      (* CMP-FIRST*)
+   | First(e') -> begin match step e' with
+      | Step e1' -> Step (First(e1'))
+      | NotReducible -> if is_val e' then match e' with
+         | Pair(e1,_) -> Step e1
+         | _ -> NotReducible
+         else NotReducible
+      end
+      (* CMP-SECOND*)
+   | Second(e') -> begin match step e' with
+      | Step e1' -> Step (Second(e1'))
+      | NotReducible -> if is_val e' then match e' with
+         | Pair(_,e2) -> Step e2
+         | _ -> NotReducible
+         else NotReducible
+      end
+   | Fun _ -> NotReducible
+   | Fix _ -> NotReducible
+    (* CMP-APP and CMP-APP-FIX*)
+   | App(e1,e2) -> begin match step e1 with
+      | Step e1' -> Step (App(e1',e2))
+      | NotReducible -> if is_val e1 then match e1 with
+         | Fun(x,e') -> Step (subst(x,e2,e'))
+         | Fix(f,e') -> Step (subst(f,Fix(f,e'),e'))
+         | _ -> NotReducible
+         else NotReducible
+      end
+ 
 
 
 (*
