@@ -18,7 +18,7 @@ type expr =
      | Fun of var * expr 
      (* Fix func*)
      | Fix of var * expr 
-     (* Function application *)
+     (* Function application (e e)*)
      | App of expr * expr
 
      (* DONE: Add pairs; functions; and recursive functions *)
@@ -29,9 +29,12 @@ type expr =
   in : AST [[e]]
   out : true iff e is a value
 *)
-let is_val e = match e with 
-     Int _ -> true
+let rec is_val e = match e with 
+   | Int _ -> true
    | Bool _ -> true
+   | Pair(e1,e2) -> is_val e1 && is_val e2
+   | Fun _ -> true
+   | Fix _ -> true
    | _ -> false
 
 (*************************)
@@ -152,8 +155,11 @@ let rec multistep e = match step e with
 (* Type checking *)
 (*****************)
 
-type arith_type = INT | BOOL
-(* TODO: add pairs and function types *)
+type arith_type = 
+   | BOOL
+   | INT
+   | FUN of arith_type * arith_type (* Tau 1  Tau 2 : pair *)
+   | PAIR of arith_type * arith_type (* Tau 1 and Tau 2 : function *)
 
 (* Define a type to represent finite maps/typing contexts *)
 type context = (var * arith_type) list
