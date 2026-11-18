@@ -57,6 +57,12 @@ let rec subst (x, v, e) : expr =
   | Pair(e1,e2) -> Pair(subst(x,v,e1), subst(x,v,e2))
   | First(e') -> First(subst(x,v,e'))
   | Second(e') -> Second(subst(x,v,e'))
+  | Fun(y,e') -> if x = y then e else Fun(y, subst(x,v,e'))
+  | Fix(y,e') -> if x = y then e else Fix(y, subst(x,v,e'))
+  | App(e1,e2) -> App(subst(x,v,e1), subst(x,v,e2))
+
+
+  
 type step_result = Step of expr | NotReducible
 (* 
    step : expr -> step_result
