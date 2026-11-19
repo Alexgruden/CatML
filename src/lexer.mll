@@ -13,16 +13,29 @@ rule read =
   | white { read lexbuf }
   | "True" { TRUE }
   | "False" { FALSE }
+  | "And" { AND }
+  | "Or" { OR }
+  | "Not" { NOT }
   | "*" { TIMES }
   | "+" { PLUS }
   | "(" { LPAREN }
   | ")" { RPAREN }
   | "Let" { LET }
   | "=" { EQUALS }
+  | "," { COMMA }
   | "In" { IN }
   | "If" { IF }
   | "Then" { THEN }
   | "Else" { ELSE }
-  | id { ID (Lexing.lexeme lexbuf) }
   | int { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | eof { EOF }
+  | "First" { FIRST }
+  | "Second" { SECOND }
+  | "Fun" { FUN }
+  | "->" { ARROW }
+  | "Fix" { FIX }
+  | "." { DOT }
+  | ":" { COLON }
+  | "Int" { INT_TYPE }
+  | "Bool" { BOOL_TYPE }
+  | id { ID (Lexing.lexeme lexbuf) }
