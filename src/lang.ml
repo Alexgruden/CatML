@@ -3,6 +3,13 @@
    ----------------------
 *)
 type var = string
+
+type arith_type = 
+   | BOOL
+   | INT
+   | FUN of arith_type * arith_type (* Tau 1 to Tau 2 : func *)
+   | PAIR of arith_type * arith_type (* Tau 1 and Tau 2 : pair *)
+
 type expr =
      (* boolean expression forms *)
      | Bool of bool | And of expr * expr | Or of expr * expr | Not of expr
@@ -12,8 +19,16 @@ type expr =
      | If of expr * expr * expr
      (* Variables and let expressions *)
      | Var of var | Let of var * expr * expr
+     (* Pairs *)
+     | Pair of expr * expr | First of expr | Second of expr
+     (* Functions *)
+     | Fun of var * arith_type * expr 
+     (* Fix func*)
+     | Fix of var * var * arith_type * arith_type * expr
+     (* Function application (e e)*)
+     | App of expr * expr
 
-     (* TODO: Add pairs; functions; and recursive functions *)
+     (* DONE: Add pairs; functions; and recursive functions *)
 
 
 (*
@@ -21,9 +36,12 @@ type expr =
   in : AST [[e]]
   out : true iff e is a value
 *)
-let is_val e = match e with 
-     Int _ -> true
+let rec is_val e = match e with 
+   | Int _ -> true
    | Bool _ -> true
+   | Pair(e1,e2) -> is_val e1 && is_val e2
+   | Fun _ -> true
+   | Fix _ -> true
    | _ -> false
 
 (*************************)
@@ -43,6 +61,15 @@ let rec subst (x, v, e) : expr =
   | Mult(e1,e2) -> Mult(subst(x,v,e1), subst(x,v,e2))
   | Equal(e1,e2) -> Equal(subst(x,v,e1), subst(x,v,e2))
   | If(e0,e1,e2) -> If(subst(x,v,e0), subst(x,v,e1), subst(x,v,e2))
+  (* Pairs function and rec function*)
+  | Pair(e1,e2) -> Pair(subst(x,v,e1), subst(x,v,e2))
+  | First(e') -> First(subst(x,v,e'))
+  | Second(e') -> Second(subst(x,v,e'))
+  | Fun(y,t,e') -> if x = y then e else Fun(y, t, subst(x,v,e'))
+  | Fix(f,y,t1,t2,e') -> if x = f || x = y then e else Fix(f, y, t1, t2, subst(x,v,e'))
+  | App(e1,e2) -> App(subst(x,v,e1), subst(x,v,e2))
+
+
 
 type step_result = Step of expr | NotReducible
 (* 
@@ -123,6 +150,42 @@ let rec step (e : expr) : step_result =
       | Step e1' -> Step (Let(x,e1',e2))
       | NotReducible -> if is_val e1 then Step(subst(x,e1,e2)) else NotReducible
       end
+   | Pair(e1,e2) -> begin match step e1 with
+      | Step e1' -> Step (Pair(e1',e2))
+      | NotReducible ->
+         begin match step e2 with
+         | Step e2' -> Step (Pair(e1,e2'))
+         | NotReducible -> NotReducible
+         end
+      end
+      (* CMP-FIRST*)
+   | First(e') -> begin match step e' with
+      | Step e1' -> Step (First(e1'))
+      | NotReducible -> if is_val e' then match e' with
+         | Pair(e1,_) -> Step e1
+         | _ -> NotReducible
+         else NotReducible
+      end
+      (* CMP-SECOND*)
+   | Second(e') -> begin match step e' with
+      | Step e1' -> Step (Second(e1'))
+      | NotReducible -> if is_val e' then match e' with
+         | Pair(_,e2) -> Step e2
+         | _ -> NotReducible
+         else NotReducible
+      end
+   | Fun _ -> NotReducible
+   | Fix _ -> NotReducible
+    (* CMP-APP and CMP-APP-FIX*)
+   | App(e1,e2) -> begin match step e1 with
+      | Step e1' -> Step (App(e1',e2))
+      | NotReducible -> if is_val e1 then match e1 with
+         | Fun(x,_,e') -> Step (subst(x,e2,e'))
+         | Fix(f,x,_,_,e') -> Step (subst(f,e1,subst(x,e2,e')))
+         | _ -> NotReducible
+         else NotReducible
+      end
+ 
 
 
 (*
@@ -142,8 +205,6 @@ let rec multistep e = match step e with
 (* Type checking *)
 (*****************)
 
-type arith_type = INT | BOOL
-(* TODO: add pairs and function types *)
 
 (* Define a type to represent finite maps/typing contexts *)
 type context = (var * arith_type) list
@@ -211,6 +272,39 @@ let rec type_of_expr (g, e) : arith_type option =
       else None
     | _, _, _ -> None
     end
+    (* Pair function and rec function *)
+  | Pair(e1,e2) ->
+    begin match type_of_expr (g,e1), type_of_expr (g,e2) with
+    | Some t1, Some t2 -> Some (PAIR(t1,t2))
+    | _, _ -> None
+    end
+  | First(e') ->
+    begin match type_of_expr (g,e') with
+    | Some (PAIR(t1,_)) -> Some t1
+    | _ -> None
+    end
+  | Second(e') ->
+    begin match type_of_expr (g,e') with
+    | Some (PAIR(_,t2)) -> Some t2
+    | _ -> None
+    end
+  | Fun(x,t1,e') ->
+    begin match type_of_expr (extend(g,x,t1), e') with
+    | Some t2 -> Some (FUN(t1,t2))
+    | None -> None
+    end
+  | Fix(f,x,t1,t2,e') ->
+    begin match type_of_expr (extend(extend(g,f,FUN(t1,t2)),x,t1), e') with
+    | Some t2' -> if t2 = t2' then Some (FUN(t1,t2)) else None
+    | None -> None
+    end
+  | App(e1,e2) ->
+    begin match type_of_expr (g,e1), type_of_expr (g,e2) with
+    | Some (FUN(t1,t2)), Some t3 ->
+      if t1 = t3 then Some t2
+      else None
+    | _, _ -> None
+    end
 
 
 
@@ -241,6 +335,13 @@ let rec string_of_expr e = match e with
    | If(e1, e2, e3) -> "If " ^ (string_of_expr e1) ^ 
                        " Then " ^ (string_of_expr e2) ^
                        " Else " ^ (string_of_expr e3)
+    (* Pair function and rec function*)
+   | Pair(e1,e2) -> "(" ^ (string_of_expr e1) ^ ", " ^ (string_of_expr e2) ^ ")"
+   | First(e') -> "First(" ^ (string_of_expr e') ^ ")"
+   | Second(e') -> "Second(" ^ (string_of_expr e') ^ ")"
+   | Fun(x,_,e') -> "Fun " ^ x ^ " -> " ^ (string_of_expr e')
+   | Fix(f,x,_,_,e') -> "Fix " ^ f ^ "." ^ x ^ " -> " ^ (string_of_expr e')
+   | App(e1,e2) -> "(" ^ (string_of_expr e1) ^ " " ^ (string_of_expr e2) ^ ")"
 
 
 (*
@@ -273,3 +374,29 @@ let rec stepper e = pretty_trace e true;;
 *)
 let rec tracer e = pretty_trace e false;;
 
+
+(* TESTING *)
+
+(* fibpair n = (fib n, fib (n+1)) *)
+let fibpair =
+  Fix ("fp", "n", INT, PAIR (INT, INT),
+       If (Equal (Var "n", Int 0),
+           Pair (Int 0, Int 1),
+           Let ("p", App (Var "fp", Plus (Var "n", Int (-1))),
+                Pair (Second (Var "p"), Plus (First (Var "p"), Second (Var "p"))))))
+
+let add = Fun ("x", INT, Fun ("y", INT, Plus (Var "x", Var "y")))
+let tc e = type_of_expr (empty_context, e)
+
+let () = print_endline ("1. recursion + pairs (expect (55, 89)): " ^
+  string_of_expr (multistep (Let ("g", fibpair, App (Var "g", Int 10)))))
+let () = print_endline ("2. functions + currying (expect 7): " ^
+  string_of_expr (multistep (App (App (add, Int 3), Int 4))))
+let () = print_endline ("3. shadowing (expect 2): " ^
+  string_of_expr (multistep (App (App (Fun ("x", INT, Fun ("x", INT, Var "x")), Int 1), Int 2))))
+let () = print_endline ("4. Fix/Pair/First/Second types (expect true): " ^
+  string_of_bool (tc fibpair = Some (FUN (INT, PAIR (INT, INT)))))
+let () = print_endline ("5. Fun types (expect true): " ^
+  string_of_bool (tc add = Some (FUN (INT, FUN (INT, INT)))))
+let () = print_endline ("6. bad argument rejected (expect true): " ^
+  string_of_bool (tc (App (add, Bool true)) = None))
