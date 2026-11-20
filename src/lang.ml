@@ -378,7 +378,7 @@ let rec tracer e = pretty_trace e false;;
 (* TESTING *)
 
 (* fibpair n = (fib n, fib (n+1)) *)
-let fibpair =
+(* let fibpair =
   Fix ("fp", "n", INT, PAIR (INT, INT),
        If (Equal (Var "n", Int 0),
            Pair (Int 0, Int 1),
@@ -399,4 +399,4 @@ let () = print_endline ("4. Fix/Pair/First/Second types (expect true): " ^
 let () = print_endline ("5. Fun types (expect true): " ^
   string_of_bool (tc add = Some (FUN (INT, FUN (INT, INT)))))
 let () = print_endline ("6. bad argument rejected (expect true): " ^
-  string_of_bool (tc (App (add, Bool true)) = None))
+  string_of_bool (tc (App (add, Bool true)) = None)) *)
