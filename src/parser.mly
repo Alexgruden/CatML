@@ -43,7 +43,7 @@ open Lang
 %nonassoc NOT
 %nonassoc FIRST
 %nonassoc SECOND
-(*%left APP*)
+%left APP
 
 %start <Lang.expr> prog
 
@@ -73,7 +73,7 @@ expr:
   | LPAREN; e1 = expr; COMMA; e2 = expr; RPAREN { Pair (e1, e2) }
   | FIRST; e = expr %prec FIRST { First e }
   | SECOND; e = expr %prec SECOND { Second e }
-  (*| e1 = expr; e2 = expr %prec APP{ App (e1, e2) }*)
+  | e1 = expr; e2 = expr %prec APP{ App (e1, e2) }
   | FUN; x = ID; COLON; t = arith_type; ARROW; e = expr %prec LOW_PREC { Fun (x, t, e) }
   | FIX; f = ID; DOT; x = ID; COLON; t1 = arith_type; COLON; t2 = arith_type; ARROW; e = expr %prec LOW_PREC { Fix (f, x, t1, t2, e) }
   ;
