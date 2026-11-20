@@ -86,11 +86,11 @@ TODO
 
 2. Did you use generative AI to assist you in implementing this project? If so, briefly explain how you used it and for which components.
 
-TODO
+The primary uses of AI fell into: Getting external tools (Dune, menhir, or ocamllex) working correctly. And also Problem 3 - Debugging how to link and compile different files in the dune project. These tools were completely unfamiliar before doing work on this project and were important to understand how they work properly. AI is great for this as you can avoid big hurdles that tools can cause at times.
 
 3. Did you make any design decisions that we should know about?
 
-TODO
+The design decisions I made were pulled mostly from the testbook. It was a great reference and it teaches you how to create something correctly so there is no reason to deviate from it.
 
 4. Did you implement any of the extra credit features? Briefly summarize your work.
 
