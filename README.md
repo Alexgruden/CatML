@@ -2,7 +2,7 @@
 
 TODO: Update this README and fill out the reflection questions.
 
-This repository contains a (template) implementation of CatML, an ML variant used at UVM for CS3250.
+This repository contains an updated implementation of CatML, an ML variant used at UVM for CS3250.
 
 ## Building this repository with `dune`
 
@@ -90,12 +90,24 @@ The primary uses of AI fell into: Getting external tools (Dune, menhir, or ocaml
 
 3. Did you make any design decisions that we should know about?
 
-The design decisions I made were pulled mostly from the testbook. It was a great reference and it teaches you how to create something correctly so there is no reason to deviate from it.
+The design decisions we made were pulled mostly from the testbook. It was a great reference and it teaches you how to create something correctly so there is no reason to deviate from it. We also implemented a few test files that helped us better understand our program as well as make sure it was working properly. The test files are as follows:
+test_arith.catml
+test_booleans.catml
+test_fun.catml
+test_pair.catml
+test_type.catml
 
 4. Did you implement any of the extra credit features? Briefly summarize your work.
 
-TODO
+We chose not to implement any extra credit features for this project.
 
 5. Any feedback on the structure of this assignment?
 
-TODO
+We liked the structure of this assignment. It was very straightforward and didn't leave any room for confusion. It was also helpful that there was a template repo to build off of, rather than starting from scratch.
+
+## Testing
+To test our code, please ensure that you have dune installed on your machine.
+
+In your terminal run "dune build"
+Run "dune utop src"
+To test any of the test files, run 'CatML.Main.run "examples/[test_file_name]";;'

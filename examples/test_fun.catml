@@ -1,0 +1,3 @@
+Let add = Fun x : Int -> Fun y : Int -> x + y In
+Let mult = Fun x : Int -> Fun y : Int -> x * y In
+((add 2) 1,(mult 3) 5)

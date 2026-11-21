@@ -1,0 +1,11 @@
+Let a = True And True In
+Let b = True And False In
+Let c = False And True In
+Let d = False And False In
+Let e = True Or True In
+Let f = True Or False In
+Let g = False Or True In
+Let h = False Or False In
+Let i = True And False Or True In
+Let j = Not (True And False) In
+(a, (b, (c, (d, (e, (f, (g, (h, (i, (j))))))))))

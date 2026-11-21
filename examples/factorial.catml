@@ -1,4 +1,4 @@
-Let fact = Fix f. x ->
+Let fact = Fix f. x : Int : Int ->
     If x = 0 Then 1
     Else x * f (x + -1)
 
